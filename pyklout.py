@@ -110,8 +110,6 @@ class Klout(object):
             else:
                 url = url + '&' + query_str
 
-        print url
-
         try:
             request = urllib2.Request(url, body_str)
             data = urllib2.urlopen(request).read()
@@ -189,3 +187,86 @@ class Klout(object):
         data = self.make_api_call(url, query)
 
         return  data['users']
+
+    def users_topics(self, users):
+        """
+        This method allows you to retrieve the top 3 topic objects
+
+        Parameters
+        ----------
+        users: The usernames from whom fetching the top topics
+
+        Returns
+        -------
+        A dictionary with the returned data.
+
+        """
+        url = self.API_URL + '/1/users/topics.json'
+
+        if not users:
+            raise KloutError(0, 'No Users')
+
+        if isinstance(users, (list, tuple)):
+            users = ','.join(users)
+
+        query = {'users': users}
+
+        data = self.make_api_call(url, query)
+
+        return  data['users']
+
+    def users_influenced_by(self, users):
+        """
+        This method allows you to retrieve up to 5 user score pairs
+            for users that are influenced by the given influencer
+
+        Parameters
+        ----------
+        users: The usernames from it will fetch the influenced usernames
+
+        Returns
+        -------
+        A dictionary with the returned data.
+
+        """
+        url = self.API_URL + '/1/soi/influenced_by.json'
+
+        if not users:
+            raise KloutError(0, 'No Users')
+
+        if isinstance(users, (list, tuple)):
+            users = ','.join(users)
+
+        query = {'users': users}
+
+        data = self.make_api_call(url, query)
+
+        return data['users']
+
+    def users_influencer_of(self, users):
+        """
+        This method allows you to retrieve up to 5 user score pairs
+            for users that are influencers of the given user.
+
+        Parameters
+        ----------
+        users: The usernames from it will fetch the influenced usernames
+
+        Returns
+        -------
+        A dictionary with the returned data.
+
+        """
+        url = self.API_URL + '/1/soi/influencer_of.json'
+
+        if not users:
+            raise KloutError(0, 'No Users')
+
+        if isinstance(users, (list, tuple)):
+            users = ','.join(users)
+
+        query = {'users': users}
+
+        data = self.make_api_call(url, query)
+
+        return data['users']
