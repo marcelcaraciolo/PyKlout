@@ -21,9 +21,9 @@ __version__ = '0.1'
 
 
 import urllib
-import urllib2
+import httplib
 import json
-
+import urllib2
 
 ERROR_STATUS = {
     # "200: "OK: Success", IS A GOOD STATUS
@@ -59,7 +59,7 @@ class Klout(object):
     api_key : string the Klout API Key.
 
     '''
-    API_URL = 'http://api.klout.com'
+    API_URL = 'api.klout.com'
 
     def __init__(self, api_key):
         self._api_key = api_key
@@ -111,10 +111,15 @@ class Klout(object):
                 url = url + '&' + query_str
 
         try:
-            request = urllib2.Request(url, body_str)
-            data = urllib2.urlopen(request).read()
+            conn = httplib.HTTPConnection(self.API_URL)
+            if body_str:
+                conn.request('POST', url, body_str)
+            else:
+                conn.request('GET', url)
+            resp = conn.getresponse()
+            data = resp.read()
             data = json.loads(data)
-        except urllib2.HTTPError as err:
+        except httplib.HTTPException as err:
             msg = err.read() or ERROR_STATUS.get(err.code, err.message)
             raise KloutError(err.code, msg)
         except ValueError:
@@ -147,7 +152,7 @@ class Klout(object):
         Names are returned as unicode strings and scores as floats
 
         """
-        url = self.API_URL + '/1/klout.json'
+        url = '/1/klout.json'
 
         if not users:
             raise KloutError(0, 'No Users')
@@ -174,7 +179,7 @@ class Klout(object):
         A dictionary with the returned data.
 
         """
-        url = self.API_URL + '/1/users/show.json'
+        url = '/1/users/show.json'
 
         if not users:
             raise KloutError(0, 'No Users')
@@ -198,10 +203,11 @@ class Klout(object):
 
         Returns
         -------
-        A dictionary with the returned data.
+        A list of dicts in the form [{'username':['topic1', 'topic2', ..]}]
+        usernames and topics are returned as unicode strings
 
         """
-        url = self.API_URL + '/1/users/topics.json'
+        url = '/1/users/topics.json'
 
         if not users:
             raise KloutError(0, 'No Users')
@@ -213,7 +219,9 @@ class Klout(object):
 
         data = self.make_api_call(url, query)
 
-        return  data['users']
+        data = data['users']
+
+        return [{user['twitter_screen_name']:[topic  for topic in user['topics']]} for user in data]
 
     def users_influenced_by(self, users):
         """
@@ -226,10 +234,11 @@ class Klout(object):
 
         Returns
         -------
-        A dictionary with the returned data.
+        A list of dicts in the form [{'username':[('username',kscore), ('username2','kscore2'),...]}]
+        usernames are returned as unicode strings and kscores as floats.
 
         """
-        url = self.API_URL + '/1/soi/influenced_by.json'
+        url = '/1/soi/influenced_by.json'
 
         if not users:
             raise KloutError(0, 'No Users')
@@ -241,7 +250,10 @@ class Klout(object):
 
         data = self.make_api_call(url, query)
 
-        return data['users']
+        data = data['users']
+
+        return [{user['twitter_screen_name']:[(influencer['twitter_screen_name'], influencer['kscore']) \
+            for influencer in user['influencers']]} for user in data]
 
     def users_influencer_of(self, users):
         """
@@ -254,8 +266,8 @@ class Klout(object):
 
         Returns
         -------
-        A dictionary with the returned data.
-
+        A list of dicts in the form [{'username':[('username',kscore), ('username2','kscore2'),...]}]
+        usernames are returned as unicode strings and kscores as floats.
         """
         url = self.API_URL + '/1/soi/influencer_of.json'
 
@@ -269,4 +281,7 @@ class Klout(object):
 
         data = self.make_api_call(url, query)
 
-        return data['users']
+        data = data['users']
+
+        return [{user['twitter_screen_name']:[(influencer['twitter_screen_name'], influencer['kscore']) \
+                for influencer in user['influencees']]} for user in data]
