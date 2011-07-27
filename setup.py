@@ -29,10 +29,14 @@ setup(name=name,
       version=version,
       description="Python Wrapper for Klout (http://klout.com/) API",
       author="Marcel Caraciolo",
+      author_email='caraciol@gmail.com',
+      long_description="""
+      Python interface for Klout (http://klout.com/) API
+      """,
       url="https://github.com/marcelcaraciolo/PyKlout",
       download_url='https://github.com/marcelcaraciolo/PyKlout/tarball/master',
       license="LGPL3",
-      keywords="klout",
+      keywords="klout api",
       classifiers=[
                    "Development Status :: 4 - Beta",
                    "Topic :: Utilities",
@@ -43,5 +47,5 @@ setup(name=name,
                    "Topic :: Internet",
                    "Topic :: Internet :: WWW/HTTP",
                    ],
-      py_modules=['pyklout'],
+      py_modules=['pyklout', 'test_klout'],
 )
