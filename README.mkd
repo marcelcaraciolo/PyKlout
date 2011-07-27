@@ -38,6 +38,31 @@ How to Use it
 ```python
 
 >>> from pyklout import Klout
->>> 
+>>> api = Klout('YOUR API KEY GOES HERE')
+>>>
+>>> # Get the Klout Score
+>>> api.score(['rafaelcaricio'])
+[(u'rafaelcaricio', 53.18)]
+>>>
+>>> # You can pass more than one username up to 5 usernames.
+>>> api.score(['rafaelcaricio', 'marcelcaraciolo', 'atepassar_', 'caocurseiro', 'googleapps'])
+[(u'rafaelcaricio', 53.18), (u'marcelcaraciolo', 46.390000000000001), (u'atepassar_', 57.960000000000001), (u'caocurseiro', 55.149999999999999), (u'googleapps', 55.020000000000003)]
+>>>
+>>> # Get the User Klout objects
+>>> api.users_show(['marcelcaraciolo'])
+[{u'score': {u'slope': 0.050000000000000003, u'kclass_description': u'You may not be a celebrity, but within your area of expertise your opinion is second to none. Your content is likely focused around a specific topic or industry with a focused, highly-engaged audience.', u'amplification_score': 29.030000000000001, u'kscore': 53.18, u'description': u'creates content that is spread throughout their network and drives discussions', u'true_reach': 350, u'kscore_description': u'creates content that is spread throughout their network and drives discussions', u'delta_5day': -3.5600000000000001, u'kclass_id': 0, u'network_score': 59.009999999999998, u'delta_1day': -1.1399999999999999, u'kclass': u'Specialist'}, u'twitter_id': u'99999999', u'twitter_screen_name': u'marcelcaraciolo'}]
+>>>
+>>> # Get the Top 3 influential topics for the username
+>>> api.users_topics(['marcelcaraciolo']) 
+[{u'marcelcaraciolo': [u'artificial intelligence', u'brazil', u'conferences']}]
+>>>
+>>> # Get the most top 5 influented by the username
+>>> api.users_influenced_by(['rafaelcaricio', 'marcelcaraciolo'])
+[{u'rafaelcaricio': [(u'siminino_victor', 29.449999999999999), (u'frenetic_br', 42.119999999999997), (u'thuliocosta', 30.309999999999999), (u'raninho', 33.609999999999999), (u'tarsisazevedo', 49.939999999999998)]}, {u'marcelcaraciolo': [(u'flavioribeiro', 45.420000000000002), (u'thuliocosta', 30.309999999999999), (u'rafaelcaricio', 53.18), (u'rodrigoalvieira', 21.48), (u'ensol', 55.350000000000001)]}]
+>>>
+>>> # Get the most top 5 usernames that influences the username
+>>> api.users_influencer_of(['marcelcaraciolo'])
+[{u'marcelcaraciolo': [(u'flavioribeiro', 45.420000000000002), (u'thuliocosta', 30.309999999999999), (u'rafaelcaricio', 53.18), (u'rodrigoalvieira', 21.48), (u'ensol', 55.350000000000001)]}]
+
 
 ```
