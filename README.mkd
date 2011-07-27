@@ -7,7 +7,7 @@ Use of PyKlout requires a Klout API key. You can register and get a key at
 <http://developer.klout.com/member/register>
 
 
-How to Use it
+How to Install it
 ------------------
 
 After download the source code by:
@@ -31,22 +31,13 @@ $ python setup.py install
 
 ```
 
+How to Use it
+--------------
+
 
 ```python
-@Vows.batch
-class SomeVows(TornadoHTTPContext):
-    def _get_app(self):
-        application = tornado.web.Application([
-            (r"/", HomeHandler),
-        ])
-        return application
 
-    class HomeUrl(TornadoHTTPContext):
-        def topic(self):
-            self._http_client.fetch(self._get_url('/'), self._stop)
-            response = self._wait()
-            return response.body
+>>> from pyklout import Klout
+>>> 
 
-        def should_be_hello_world(self, topic):
-            expect(topic).to_equal('hello_world')
 ```
