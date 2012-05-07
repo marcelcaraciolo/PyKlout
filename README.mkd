@@ -6,6 +6,8 @@ PyKlout is an Python interface to Klout (http://klout.com) API.
 Use of PyKlout requires a Klout API key. You can register and get a key at
 <http://developer.klout.com/member/register>
 
+Now Supporting the API Release V2. 
+
 
 How to Install it
 ------------------
@@ -40,43 +42,45 @@ How to Use it
 >>> from pyklout import Klout
 >>> api = Klout('YOUR API KEY GOES HERE')
 >>>
->>> # Get the Klout Score
->>> api.score(['rafaelcaricio'])
-[(u'rafaelcaricio', 53.18)]
+>>> # Get the Klout Score 
+>>> data = api.identity('marcelcaraciolo', 'twitter')
+>>> #First you must fetch the klout user id.
+>>> user_id = data['id']
+>>> api.score(user_id)
+{u'score': 51.613044738769531, u'scoreDelta': {u'dayChange': -0.25563812255859375, \
+ u'monthChange': -0.54084014892578125, u'weekChange': -0.67768478393554688}}
 >>>
->>> # You can pass more than one username up to 5 usernames.
->>> api.score(['rafaelcaricio', 'marcelcaraciolo', 'atepassar_', 'caocurseiro', 'googleapps'])
-[(u'rafaelcaricio', 53.18), (u'marcelcaraciolo', 46.390000000000001), (u'atepassar_', \
-57.960000000000001), (u'caocurseiro', 55.149999999999999), (u'googleapps', 55.020000000000003)]
->>>
->>> # Get the User Klout objects
->>> api.users_show(['marcelcaraciolo'])
-[{u'score': {u'slope': 0.050000000000000003, u'kclass_description': u'You may not be a celebrity,\
- but within your area of expertise your opinion is second to none. Your content is likely focused 
- around a specific topic or industry with a focused, highly-engaged audience.',
- u'amplification_score': 29.030000000000001, u'kscore': 53.18, u'description': u'creates content
- that is spread throughout their network and drives discussions', u'true_reach': 350, 
- u'kscore_description': u'creates content that is spread throughout their network and drives
- discussions', u'delta_5day': -3.5600000000000001, u'kclass_id': 0, u'network_score':
- 59.009999999999998, u'delta_1day': -1.1399999999999999, u'kclass': u'Specialist'}, u'twitter_id': 
- u'99999999', u'twitter_screen_name': u'marcelcaraciolo'}]
->>>
->>> # Get the Top 3 influential topics for the username
->>> api.users_topics(['marcelcaraciolo']) 
-[{u'marcelcaraciolo': [u'artificial intelligence', u'brazil', u'conferences']}]
->>>
->>> # Get the most top 5 influented by the username
->>> api.users_influenced_by(['rafaelcaricio', 'marcelcaraciolo'])
-[{u'rafaelcaricio': [(u'siminino_victor', 29.449999999999999), (u'frenetic_br', 42.119999999999997)
-, (u'thuliocosta', 30.309999999999999), (u'raninho', 33.609999999999999), (u'tarsisazevedo', 
-49.939999999999998)]}, {u'marcelcaraciolo': [(u'flavioribeiro', 45.420000000000002), (
-u'thuliocosta', 30.309999999999999), (u'rafaelcaricio', 53.18), (u'rodrigoalvieira', 21.48), (
-u'ensol', 55.350000000000001)]}]
->>>
->>> # Get the most top 5 usernames that influences the username
->>> api.users_influencer_of(['marcelcaraciolo'])
-[{u'marcelcaraciolo': [(u'flavioribeiro', 45.420000000000002), (u'thuliocosta', 30.309999999999999)
-, (u'rafaelcaricio', 53.18), (u'rodrigoalvieira', 21.48), (u'ensol', 55.350000000000001)]}]
+>>> #Get the User influences
+>>> data = api.influences(user_id)
+>>> print data
+{u'myInfluencersCount': 12, u'myInfluenceesCount': 688, u'myInfluencers': [{u'entity': {u'id': u'32088152110374909', \
+ u'payload': {u'kloutId': u'32088152110374909', u'score': {u'score': 68.181953430175781}}}}, {u'entity': \
+ {u'id': u'35747326807441155', u'payload': {u'kloutId': u'35747326807441155', u'scoreDeltas': \
+ {u'dayChange': -0.2061004638671875, u'monthChange': 0.52481460571289062, u'weekChange': -0.73615646362304688}, \
+u'score': {u'score': 61.678096771240234}}}}, {u'entity': {u'id': u'528598', u'payload': {u'kloutId': u'528598', \
+ u'scoreDeltas': {u'dayChange': -0.30794143676757812, u'monthChange': -1.3581733703613281, \
+u'weekChange': -0.95804977416992188}, u'score': {u'score': 57.507125854492188}}}}, \
+{u'entity': {u'id': u'57420900014600367', u'payload': {u'kloutId': u'57420900014600367', u'scoreDeltas': \
+ {u'dayChange': -0.10103988647460938, u'monthChange': -0.78160476684570312, u'weekChange': 0.048831939697265625}, \
+ u'score': {u'score': 55.013530731201172}}}}, {u'entity': {u'id': u'84723972974129636', u'payload': \
+{u'kloutId': u'84723972974129636', u'scoreDeltas': {u'dayChange': 0.34136962890625, u'monthChange': 14.804290771484375, \
+ u'weekChange': -0.1102142333984375}, u'score': {u'score': 50.926513671875}}}}], u'myInfluencees': \
+[{u'entity': {u'id': u'970250', u'payload': {u'kloutId': u'970250', u'scoreDeltas': {u'dayChange': -0.20825576782226562, \
+u'monthChange': 0.56769561767578125, u'weekChange': -0.17999267578125}, u'score': {u'score': 46.707504272460938}}}}, \
+ {u'entity': {u'id': u'27866027459763237', u'payload': {u'kloutId': u'27866027459763237', u'scoreDeltas': \
+ {u'dayChange': -0.20732498168945312, u'monthChange': 1.8845806121826172, u'weekChange': -1.0561943054199219}, \
+u'score': {u'score': 29.672574996948242}}}}, {u'entity': {u'id': u'291630', u'payload': {u'kloutId': u'291630', \
+u'scoreDeltas': {u'dayChange': 3.017303466796875, u'monthChange': 2.9252605438232422, u'weekChange': 3.0163726806640625}, \
+u'score': {u'score': 13.129240036010742}}}}]}
 
-
+>>> # Get the Top topics for the username
+>>> data = api.topics(user_id) 
+>>> print data
+[{u'imageUrl': u'http://kcdn3.klout.com/static/images/icons/generic-topic.png', u'slug': u'artificial-intelligence', \
+ u'displayName': u'Artificial Intelligence', u'id': u'6715916572741025395', u'name': u'artificial intelligence'}, \
+ {u'imageUrl': u'http://kcdn3.klout.com/static/images/books-1333558978086.png', u'slug': u'books', u'displayName': \
+u'Books', u'id': u'5807244297982144638', u'name': u'books'}, {u'imageUrl': u'http://kcdn3.klout.com/static/images/topics/social-media.png', \
+ u'slug': u'blogging', u'displayName': u'Blogging', u'id': u'7331299376965973530', u'name': u'blogging'}, {u'imageUrl': \ u'http://kcdn3.klout.com/static/images/icons/generic-topic.png', u'slug': u'python', u'displayName': u'Python', u'id': \
+u'8389956153950126978', u'name': u'python'}, {u'imageUrl': u'http://kcdn3.klout.com/static/images/icons/generic-topic.png', \
+ u'slug': u'idf', u'displayName': u'Idf', u'id': u'1242', u'name': u'idf'}]
 ```

@@ -7,7 +7,7 @@ A Python interface for the Klout API.
 Use of PyKlout requires a Klout API key.
 You can register and get a key at
 
-    <http://developer.klout.com/member/register>
+    <http://http://klout.com/s/developers/v2>
 
 
 https://github.com/marcelcaraciolo/PyKlout
@@ -17,7 +17,7 @@ https://github.com/marcelcaraciolo/PyKlout
 
 
 __author__ = 'Marcel Caraciolo'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 import urllib
@@ -108,8 +108,7 @@ class Klout(object):
             if url.find('?') == -1:
                 url = url + '?' + query_str
             else:
-                url = url + '&' + query_str
-
+                url = url + '&' + query_str    
         try:
             conn = httplib.HTTPConnection(self.API_URL)
             if body_str:
@@ -125,163 +124,124 @@ class Klout(object):
         except ValueError:
             msg = 'Invalida data: %s' % data
             raise KloutError(0, msg)
-        else:
-            status = data.pop("status")
-            if status in ERROR_STATUS:
-                msg = ERROR_STATUS.get(status, "Unknow Error")
-                raise  KloutError(status, msg)
 
-        if data.get('body', None):
-            status = data.pop("status")
-            msg = data['body']['error']
-            raise  KloutError(status, msg)
+        return data
+    
+    def identity(self, network_id, network='tw'):
+        """
+        This method allows you to retrieve the user identity.
+
+        Parameters
+        ----------
+        network: From which network you want to retrieve the score object.
+                 By default the value is tw (twitter).
+        networkId: The network id generally represented by the numerical id.
+
+        Returns
+        -------
+        A JSON dict containing the klout id in the format:
+        {u'id': u'709406', u'network': u'ks'}
+
+        """
+
+        url = '/v2/identity.json/%s'
+        
+        if not network_id or network not in ['tw', 'ks','twitter']:
+            raise KloutError(0, 'Insufficient parameters')
+
+        if isinstance(network_id, str):
+            query = {'screenName': network_id}
+            url = url % 'twitter'
+        else:
+            query = {}
+            url = url % network 
+            url += '/%d' % network_id
+
+        data = self.make_api_call(url, query)
+        
+        return data
+
+    def score(self, id):
+        """
+        This method allows you to retrieve the user score.
+
+        Parameters
+        ----------
+        id :  the numerical id (klout id)
+    
+        Returns
+        ---------
+        The dict containing the user id and klout score and score deltain the format:
+        {u'score': 51.613044738769531, u'scoreDelta': {u'dayChange': -0.25563812255859375,
+         u'monthChange': -0.54084014892578125, u'weekChange': -0.67768478393554688}}
+        """
+
+        url = '/v2/user.json/%s/%s'
+        
+        if not id:
+            raise KloutError(0, 'Insufficient parameters')
+
+        query = {}
+        url = url % (id, 'score')
+
+        data = self.make_api_call(url, query)
+        
+        return data
+        
+    def influences(self, id):
+        """
+        This method allows you to retrieve the influences by and of the user.
+
+        Parameters
+        ----------
+        id :  the numerical id (klout id)
+    
+        Returns
+        ---------
+        Influence returns two arrays:
+        myInfluencers - Who influences the user
+        myInfluencees - Whom the user influences
+        """
+        url = '/v2/user.json/%s/%s'
+
+        if not id:
+            raise KloutError(0, 'Insufficient parameters')
+
+        query = {}
+        url = url % (id, 'influence')
+
+        data = self.make_api_call(url, query)
 
         return data
 
-    def score(self, users):
+
+    def topics(self, id):
         """
-        This method allows you to retrieve a Klout score
+        This method allows you to retrieve the topics a user is influential in..
 
         Parameters
         ----------
-        users: The usernames from whom fetching the scores
+        id :  the numerical id (klout id)
 
         Returns
-        -------
-        A list of tuples in the form [('user1', score1), ('user2', score2)...]
-        Names are returned as unicode strings and scores as floats
+        ---------
+		Topics returns a limited array of topics, with important metadata:
+		
+		id - The unique id for the Klout Topic
+		displayName - A friendly name for the topic
+		name - A less-friendly name for the topic
+		slug - A helper to build a URL for the topic: http://klout.com/#/topic/{slug}
+		imageUrl - URL to Klout's image for the topic
+		
+		"""
+        url = '/v2/user.json/%s/%s'
 
-        """
-        url = '/1/klout.json'
+        if not id:
+            raise KloutError(0, 'Insufficient parameters')
 
-        if not users:
-            raise KloutError(0, 'No Users')
-
-        if isinstance(users, (list, tuple)):
-            users = ','.join(users)
-
-        query = {'users': users}
+        query = {}
+        url = url % (id, 'topics')
 
         data = self.make_api_call(url, query)
 
-        return  [(r['twitter_screen_name'], r['kscore']) for r in data['users']]
-
-    def users_show(self, users):
-        """
-        This method allows you to retrieve the user objects
-
-        Parameters
-        ----------
-        users: The usernames from whom fetching the scores
-
-        Returns
-        -------
-        A dictionary with the returned data.
-
-        """
-        url = '/1/users/show.json'
-
-        if not users:
-            raise KloutError(0, 'No Users')
-
-        if isinstance(users, (list, tuple)):
-            users = ','.join(users)
-
-        query = {'users': users}
-
-        data = self.make_api_call(url, query)
-
-        return  data['users']
-
-    def users_topics(self, users):
-        """
-        This method allows you to retrieve the top 3 topic objects
-
-        Parameters
-        ----------
-        users: The usernames from whom fetching the top topics
-
-        Returns
-        -------
-        A list of dicts in the form [{'username':['topic1', 'topic2', ..]}]
-        usernames and topics are returned as unicode strings
-
-        """
-        url = '/1/users/topics.json'
-
-        if not users:
-            raise KloutError(0, 'No Users')
-
-        if isinstance(users, (list, tuple)):
-            users = ','.join(users)
-
-        query = {'users': users}
-
-        data = self.make_api_call(url, query)
-
-        data = data['users']
-
-        return [{user['twitter_screen_name']:[topic  for topic in user['topics']]} for user in data]
-
-    def users_influenced_by(self, users):
-        """
-        This method allows you to retrieve up to 5 user score pairs
-            for users that are influenced by the given influencer
-
-        Parameters
-        ----------
-        users: The usernames from it will fetch the influenced usernames
-
-        Returns
-        -------
-        A list of dicts in the form [{'username':[('username',kscore), ('username2','kscore2'),...]}]
-        usernames are returned as unicode strings and kscores as floats.
-
-        """
-        url = '/1/soi/influenced_by.json'
-
-        if not users:
-            raise KloutError(0, 'No Users')
-
-        if isinstance(users, (list, tuple)):
-            users = ','.join(users)
-
-        query = {'users': users}
-
-        data = self.make_api_call(url, query)
-
-        data = data['users']
-
-        return [{user['twitter_screen_name']:[(influencer['twitter_screen_name'], influencer['kscore']) \
-            for influencer in user['influencers']]} for user in data]
-
-    def users_influencer_of(self, users):
-        """
-        This method allows you to retrieve up to 5 user score pairs
-            for users that are influencers of the given user.
-
-        Parameters
-        ----------
-        users: The usernames from it will fetch the influenced usernames
-
-        Returns
-        -------
-        A list of dicts in the form [{'username':[('username',kscore), ('username2','kscore2'),...]}]
-        usernames are returned as unicode strings and kscores as floats.
-        """
-        url = self.API_URL + '/1/soi/influencer_of.json'
-
-        if not users:
-            raise KloutError(0, 'No Users')
-
-        if isinstance(users, (list, tuple)):
-            users = ','.join(users)
-
-        query = {'users': users}
-
-        data = self.make_api_call(url, query)
-
-        data = data['users']
-
-        return [{user['twitter_screen_name']:[(influencer['twitter_screen_name'], influencer['kscore']) \
-                for influencer in user['influencees']]} for user in data]
+        return data
